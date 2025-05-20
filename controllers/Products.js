@@ -2,7 +2,8 @@ import Product from "../models/ProductModel.js";
 import path from "path";
 import fs from "fs";
 // import { Op } from "sequelize";
-import User from "../models/UserModel.js"; // Make sure to import User model
+import User from "../models/UserModel.js";
+import { logActivity } from "../utils/Logger.js";
 
 export const getProducts = async (req, res) => {
     try {
@@ -92,6 +93,13 @@ export const createProduct = async (req, res) => {
             url: url
         });
 
+        await logActivity(req.userId, "CREATE_PRODUCT", {
+            name,
+            price,
+            gambar: fileName,
+            url
+        });
+
         res.status(201).json({msg: "Product created successfully"});
     } catch (error) {
         console.error("Failed to create product:", error);
@@ -176,6 +184,14 @@ export const updateProduct = async (req, res) => {
             { where: { id: product.id } }
         );
 
+        await logActivity(req.userId, "UPDATE_PRODUCT", {
+            productId: product.id,
+            name,
+            price,
+            gambar: fileName,
+            url
+        });
+
         res.status(200).json({msg: "Product updated successfully"});
     } catch (error) {
         console.error(error.message);
@@ -209,6 +225,11 @@ export const deleteProduct = async (req, res) => {
             where:{
                 id: product.id
             }
+        });
+
+        await logActivity(req.userId, "DELETE_PRODUCT", {
+            productId: product.id,
+            name: product.name
         });
 
         res.status(200).json({msg: "Product deleted successfully"});

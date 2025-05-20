@@ -1,6 +1,7 @@
 import Payment from "../models/PaymentModel.js";
 import Product from "../models/ProductModel.js";
 import User from "../models/UserModel.js";
+import { logActivity } from "../utils/Logger.js";
 // import { Op } from "sequelize";
 
 export const getPayments = async (req, res) => {
@@ -135,6 +136,17 @@ export const createPayment = async (req, res) => {
             tanggal: newPayment.createdAt
         };
 
+        await logActivity(
+            req.userId, 
+            "CREATE_PAYMENT", 
+            {
+                nama_pembeli,
+                productId,
+                jumlah,
+                total_harga
+            }
+        );
+
         res.status(201).json({ 
             msg: "Pembayaran berhasil dibuat",
             payment: response // Format tetap sama
@@ -151,6 +163,14 @@ export const createPayment = async (req, res) => {
             });
         }
         
+        await logActivity(
+            req.userId,
+            "CREATE_PAYMENT_FAILED",
+            {
+                error: error.message
+            }
+        );
+
         res.status(500).json({ 
             msg: "Gagal membuat pembayaran",
             systemError: error.message // Tambahkan detail error untuk debugging

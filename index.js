@@ -9,9 +9,13 @@ import UserRoute from "./routes/UserRoute.js";
 import ProductRoute from "./routes/ProductRoute.js";
 import PaymentRoute from "./routes/PaymentRoute.js";
 import AuthRoute from "./routes/AuthRoute.js";
+import connectMongoDB from "./config/DatabaseMongo.js";
+import logActivityRoutes from "./routes/logActivityRoutes.js";
 dotenv.config();
 
 const app = express();
+
+connectMongoDB();
 
 const sessionStore = SequelizeStore(session.Store);
 
@@ -44,6 +48,7 @@ app.use(UserRoute);
 app.use(ProductRoute);
 app.use(PaymentRoute);
 app.use(AuthRoute);
+app.use("/api", logActivityRoutes);
 
 // store.sync();
 

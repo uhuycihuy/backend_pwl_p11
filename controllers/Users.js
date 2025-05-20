@@ -1,5 +1,6 @@
 import User from "../models/UserModel.js";
 import argon2 from "argon2";
+import { logActivity } from "../utils/Logger.js";
 
 export const getUsers = async (req, res) => {
     try {
@@ -38,6 +39,9 @@ export const createUser = async (req, res) => {
             password: hashPassword,
             role: role
         });
+
+        await logActivity(req.userId, `Menambah user baru: ${email}`);
+
         res.status(201).json({msg: "Register Berhasil"});
     } catch (error) {
         res.status(400).json({msg: error.message});
@@ -70,6 +74,7 @@ export const updateUser = async (req, res) => {
                 id: user.id
             }
         });
+        await logActivity(req.userId, `Mengupdate user: ${email} (Role: ${role})`);
         res.status(200).json({msg: "User Updated"});
     } catch (error) {
         res.status(400).json({msg: error.message});
@@ -89,6 +94,7 @@ export const deleteUser = async (req, res) => {
                 id: user.id
             }
         });
+        await logActivity(req.userId, `Menghapus user: ${user.email}`);
         res.status(200).json({msg: "User Deleted"});
     } catch (error) {
         res.status(400).json({msg: error.message});
